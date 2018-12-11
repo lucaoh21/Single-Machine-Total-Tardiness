@@ -7,7 +7,7 @@
  * 
  */
 
-public class RUNACO {
+public class SMTWTP_HYBRID {
 	
 	//the number of ants
 	public static int num_ants;

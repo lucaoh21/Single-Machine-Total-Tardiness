@@ -22,10 +22,10 @@ public class ANT {
 	 * Parameters: A given TSP object and an integer number of cities
 	 * Return: N/A
 	 */
-	public ANT(int num_jobs, SMTTP smttp) {
+	public ANT(int num_jobs, SMTWTP smtwtp) {
 		
 		this.num_jobs = num_jobs;
-		this.jobs = smttp.getJobs();
+		this.jobs = smtwtp.getJobs();
 		
 		this.workflow = new int[num_jobs];
 		this.workflow_score = Integer.MAX_VALUE;

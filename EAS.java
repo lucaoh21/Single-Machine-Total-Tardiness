@@ -34,7 +34,7 @@ public class EAS {
 	double stop_percent;
 	String filename;
 	
-	SMTTP smttp;
+	SMTWTP smtwtp;
 	HIVE hive;
 	Set<Integer> transitions_in_best_workflow;
 	
@@ -71,12 +71,12 @@ public class EAS {
 		double startTime = System.nanoTime();
 		
 		//creates a new traveling salesman problem and initializes
-		smttp = new SMTTP(filename);
-		num_jobs = smttp.getNum_jobs();
-		smttp.initializePheromone(setBasePheromone());
+		smtwtp = new SMTWTP(filename);
+		num_jobs = smtwtp.getNum_jobs();
+		smtwtp.initializePheromone(setBasePheromone());
 		
 		//creates a new hive object
-		hive = new HIVE(num_ants, smttp.getNum_jobs(), smttp);
+		hive = new HIVE(num_ants, smtwtp.getNum_jobs(), smtwtp);
 		
 		int num_iteration = 0;
 		double bsf_percent = Double.MAX_VALUE;
@@ -85,7 +85,7 @@ public class EAS {
 		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
 			
 			//recalculate the numerator of the prob selection rule
-			smttp.calculateValue(alpha, beta);
+			smtwtp.calculateValue(alpha, beta);
 			//construct the tours
 			construct();
 			//checks if there is new best
@@ -186,8 +186,9 @@ public class EAS {
 			
 			//only uses cities that are unvisited
 			for(int job : unperformed_jobs) {
-					
-				time = smttp.getProcessing_times()[job];
+				
+				// greedily select for shorter times and larger weights
+				time = smtwtp.getProcessing_times()[job] * (1 / smtwtp.getJobs()[job].getWeight());
 				if(time < best_next_time) {
 					best_next_time = time;
 					best_next_job = job;
@@ -299,10 +300,10 @@ public class EAS {
 			
 			//larger index first
 			if(curr_job < job) {
-				sum_prob += smttp.getSmttp_value()[job][curr_job];
+				sum_prob += smtwtp.getSmtwtp_value()[job][curr_job];
 				
 			} else {
-				sum_prob += smttp.getSmttp_value()[curr_job][job];
+				sum_prob += smtwtp.getSmtwtp_value()[curr_job][job];
 			
 			}
 		}
@@ -331,10 +332,10 @@ public class EAS {
 				//if the city is unvisited, set probability
 				if(unperformed_jobs.contains(i)) {
 					if(curr_job < i) {
-						prob[i] = smttp.getSmttp_value()[i][curr_job] / sum_prob;
+						prob[i] = smtwtp.getSmtwtp_value()[i][curr_job] / sum_prob;
 
 					} else {
-						prob[i] = smttp.getSmttp_value()[curr_job][i] / sum_prob;
+						prob[i] = smtwtp.getSmtwtp_value()[curr_job][i] / sum_prob;
 				
 					}
 					
@@ -349,10 +350,10 @@ public class EAS {
 				//if the city is unvisited, set probability
 				if(unperformed_jobs.contains(i)) {
 					if(curr_job < i) {
-						prob[i] = prob[i-1] + (smttp.getSmttp_value()[i][curr_job] / sum_prob);
+						prob[i] = prob[i-1] + (smtwtp.getSmtwtp_value()[i][curr_job] / sum_prob);
 
 					} else {
-						prob[i] = prob[i-1] + (smttp.getSmttp_value()[curr_job][i] / sum_prob);
+						prob[i] = prob[i-1] + (smtwtp.getSmtwtp_value()[curr_job][i] / sum_prob);
 				
 					}
 				
@@ -412,7 +413,7 @@ public class EAS {
 				
 				//increase pheromone in leg normally
 				added_pheromone += 1 / hive.getHive()[i].getWorkflow_score();
-				smttp.increasePheromone(job2, job1, added_pheromone);	
+				smtwtp.increasePheromone(job2, job1, added_pheromone);	
 				
 			}
 		}
@@ -428,7 +429,7 @@ public class EAS {
 	public void evaporatePheromone() {
 		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
-				smttp.evaporatePheromone(i, j, rho);
+				smtwtp.evaporatePheromone(i, j, rho);
 			}
 		}
 	}

@@ -24,7 +24,7 @@ public class HIVE {
 	 * and the TSP problem instance
 	 * Return: N/A
 	 */
-	public HIVE(int num_ants, int num_jobs, SMTTP smttp) {
+	public HIVE(int num_ants, int num_jobs, SMTWTP smtwtp) {
 		
 		this.num_ants = num_ants;
 		this.num_jobs = num_jobs;
@@ -33,7 +33,7 @@ public class HIVE {
 		this.best_workflow_so_far = new int[num_jobs];
 		
 		for (int i = 0; i < num_ants; i++) {
-			hive[i] = new ANT(num_jobs, smttp);
+			hive[i] = new ANT(num_jobs, smtwtp);
 		}
 		
 	}

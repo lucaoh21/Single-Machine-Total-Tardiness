@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class SMTTP {
+public class SMTWTP {
 	
 	int num_jobs;
 	
@@ -10,8 +10,8 @@ public class SMTTP {
 	int[] due_dates;
 	int[] weights;
 	
-	double[][] smttp_pheromone;
-	double[][] smttp_value;
+	double[][] smtwtp_pheromone;
+	double[][] smtwtp_value;
 	
 	JOB[] jobs;
 	
@@ -20,15 +20,15 @@ public class SMTTP {
 	public static final int WEIGHT = 2;
 	public static final int DONE = 3;
 	
-	public SMTTP(String filename) {
+	public SMTWTP(String filename) {
 		
-		File smttpFile = new File(filename);
+		File smtwtpFile = new File(filename);
 		
 		try {
 			String[] line;
 			
 			int counter = 0;
-			Scanner sc = new Scanner(smttpFile);
+			Scanner sc = new Scanner(smtwtpFile);
 			
 			while(counter < DONE) {
 				
@@ -71,8 +71,8 @@ public class SMTTP {
 				jobs[i] = new JOB(i, processing_times[i], due_dates[i], weights[i]);
 			}
 			
-			this.smttp_pheromone = new double[num_jobs][num_jobs];
-			this.smttp_value = new double[num_jobs][num_jobs];
+			this.smtwtp_pheromone = new double[num_jobs][num_jobs];
+			this.smtwtp_value = new double[num_jobs][num_jobs];
 			
 			
 		} catch (FileNotFoundException e) {
@@ -92,7 +92,7 @@ public class SMTTP {
 		
 		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
-				smttp_pheromone[i][j] = base_tau;
+				smtwtp_pheromone[i][j] = base_tau;
 			}
 		}
 	}
@@ -104,7 +104,7 @@ public class SMTTP {
 	 */
 	public void increasePheromone(int i, int j, double pheromone) {
 		
-		smttp_pheromone[i][j] += pheromone;
+		smtwtp_pheromone[i][j] += pheromone;
 	}
 	
 	/* Purpose: Evaporate the pheromone level on a certain path
@@ -114,7 +114,7 @@ public class SMTTP {
 	 */
 	public void evaporatePheromone(int i, int j, double rho) {
 		
-		smttp_pheromone[i][j] *= 1.0 - rho;
+		smtwtp_pheromone[i][j] *= 1.0 - rho;
 	}
 	
 	/* Purpose: Calculate the numerator of the probability of
@@ -128,9 +128,9 @@ public class SMTTP {
 		
 		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
-				pheromone = smttp_pheromone[i][j];
+				pheromone = smtwtp_pheromone[i][j];
 				heuristic = 1 / (double)due_dates[i];
-				smttp_value[i][j] = Math.pow(pheromone, alpha) * Math.pow(heuristic, beta);
+				smtwtp_value[i][j] = Math.pow(pheromone, alpha) * Math.pow(heuristic, beta);
 			}
 		}
 	}
@@ -167,20 +167,20 @@ public class SMTTP {
 		this.jobs = jobs.clone();
 	}
 
-	public double[][] getSmttp_pheromone() {
-		return smttp_pheromone;
+	public double[][] getSmtwtp_pheromone() {
+		return smtwtp_pheromone;
 	}
 
-	public void setSmttp_pheromone(double[][] smttp_pheromone) {
-		this.smttp_pheromone = smttp_pheromone.clone();
+	public void setSmtwtp_pheromone(double[][] smttp_pheromone) {
+		this.smtwtp_pheromone = smttp_pheromone.clone();
 	}
 
-	public double[][] getSmttp_value() {
-		return smttp_value;
+	public double[][] getSmtwtp_value() {
+		return smtwtp_value;
 	}
 
-	public void setSmttp_value(double[][] smttp_value) {
-		this.smttp_value = smttp_value.clone();
+	public void setSmtwtp_value(double[][] smttp_value) {
+		this.smtwtp_value = smttp_value.clone();
 	}
 	
 
