@@ -50,7 +50,7 @@ public class ANT {
 			finish_difference = (time_so_far + jobs[curr_job].getProcessing_time()) - jobs[curr_job].getDue_date();
 			
 			if (finish_difference > 0) {
-				score += finish_difference;
+				score += (finish_difference * jobs[curr_job].getWeight());
 			}
 			
 			time_so_far += jobs[curr_job].getProcessing_time();

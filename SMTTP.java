@@ -8,6 +8,7 @@ public class SMTTP {
 	
 	int[] processing_times;
 	int[] due_dates;
+	int[] weights;
 	
 	double[][] smttp_pheromone;
 	double[][] smttp_value;
@@ -16,7 +17,8 @@ public class SMTTP {
 	
 	public static final int PROCESSING_TIME = 0;
 	public static final int DUE_DATE = 1;
-	public static final int DONE = 2;
+	public static final int WEIGHT = 2;
+	public static final int DONE = 3;
 	
 	public SMTTP(String filename) {
 		
@@ -37,6 +39,7 @@ public class SMTTP {
 					this.num_jobs = line.length;
 					this.processing_times = new int[num_jobs];
 					this.due_dates = new int[num_jobs];
+					this.weights = new int[num_jobs];
 					
 					for (int i = 0; i < num_jobs; i++) {
 						processing_times[i] = Integer.parseInt(line[i]);
@@ -50,6 +53,13 @@ public class SMTTP {
 					}
 				}
 				
+				else if (counter == WEIGHT) {
+					
+					for (int i = 0; i < num_jobs; i++) {
+						weights[i] = Integer.parseInt(line[i]);
+					}
+				}
+				
 				counter++;
 			}
 			
@@ -58,7 +68,7 @@ public class SMTTP {
 			jobs = new JOB[num_jobs];
 			
 			for (int i = 0; i < num_jobs; i++) {
-				jobs[i] = new JOB(i, processing_times[i], due_dates[i]);
+				jobs[i] = new JOB(i, processing_times[i], due_dates[i], weights[i]);
 			}
 			
 			this.smttp_pheromone = new double[num_jobs][num_jobs];

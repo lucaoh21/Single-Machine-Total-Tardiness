@@ -21,6 +21,10 @@ public class RUNACO {
 	public static double rho;
 	//the elitism factor for eas (often equal to num ants)
 	public static double elitism_factor;
+	//the optimal score for the problem
+	public static int optimal;
+	//the percentage of optimal on which the algorithm should stop
+	public static double stop_percent;
 	//the smttp problem
 	public static String filename;
 	
@@ -30,9 +34,10 @@ public class RUNACO {
 		
 		System.out.println("Num ants: " + num_ants + ", num iterations: " + num_iterations + 
 				", alpha: " + alpha + ", beta: " + beta + ", rho: " + 
-				rho + ", elitism factor: " + elitism_factor + ", filename: " + filename);
+				rho + ", elitism factor: " + elitism_factor + ", optimal: " + optimal + 
+				", stop percent: " + stop_percent + ", filename: " + filename);
 			
-			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, filename);
+			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, filename);
 			eas.runEAS();
 	}
 	
@@ -45,7 +50,9 @@ public class RUNACO {
 				beta = Double.parseDouble(args[3]);
 				rho = Double.parseDouble(args[4]);
 				elitism_factor = Double.parseDouble(args[5]);
-				filename = args[6];
+				optimal = Integer.parseInt(args[6]);
+				stop_percent = Double.parseDouble(args[7]);
+				filename = args[8];
 		} catch(NullPointerException e) {
 			System.out.println("Please verify your inputs and try again");
 			System.exit(0);

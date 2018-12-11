@@ -30,6 +30,8 @@ public class EAS {
 	double beta;
 	double rho;
 	double elitism_factor;
+	int optimal;
+	double stop_percent;
 	String filename;
 	
 	SMTTP smttp;
@@ -41,7 +43,7 @@ public class EAS {
 	public static final int STOP_TIME = Integer.MAX_VALUE;
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
-			double elitism_factor, String filename) {
+			double elitism_factor, int optimal, double stop_percent, String filename) {
 		
 		this.num_ants = num_ants;
 		this.max_iterations = max_iterations;
@@ -49,6 +51,8 @@ public class EAS {
 		this.beta = beta;
 		this.rho = rho;
 		this.elitism_factor = elitism_factor;
+		this.optimal = optimal;
+		this.stop_percent = stop_percent;
 		this.filename = filename;
 		this.transitions_in_best_workflow = new HashSet<Integer>();
 	}
@@ -78,7 +82,7 @@ public class EAS {
 		double bsf_percent = Double.MAX_VALUE;
 		
 		//iterates until max iterations or specified percentage is met
-		while(num_iteration < max_iterations) {
+		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
 			
 			//recalculate the numerator of the prob selection rule
 			smttp.calculateValue(alpha, beta);
@@ -94,14 +98,13 @@ public class EAS {
 			evaporatePheromone();
 			depositPheromone();
 			
-			// bsf_percent = (hive.getBest_score_so_far() / optimal) - 1.0;
+			bsf_percent = (hive.getBest_score_so_far() / (double) optimal) - 1.0;
 
 			System.out.println("in iteration: " + num_iteration + ", best score is " + hive.getBest_score_so_far());
 
 			num_iteration++;
 		}
 		
-		/* 
 		//print finish message
 		if(bsf_percent <= stop_percent) {
 			System.out.println("The algorithm found a tour of " + hive.getBest_score_so_far() + 
@@ -110,7 +113,6 @@ public class EAS {
 		} else {
 			System.out.println("Max iterations reached.");
 		}
-		*/
 		
 		double endTime = System.nanoTime();
 		double duration = (endTime - startTime) / NANO_TO_SEC;
