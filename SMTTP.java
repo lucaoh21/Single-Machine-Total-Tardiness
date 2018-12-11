@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 
 public class SMTTP {
 	
-	
 	int num_jobs;
 	
 	int[] processing_times;
@@ -56,6 +55,14 @@ public class SMTTP {
 			System.out.println("File not found, please verify input and try again");
 		}
 		
+	}
+	
+	public int[] get_processing_times() {
+		return this.processing_times;
+	}
+	
+	public int[] get_due_dates() {
+		return this.due_dates;
 	}
 	
 
