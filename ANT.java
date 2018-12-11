@@ -12,63 +12,78 @@
 
 public class ANT {
 	
-	int[] tour;
-	double tour_score;
-	int num_cities;
-	double[][] legDistances;
+	int[] workflow;
+	int workflow_score;
+	
+	int num_jobs;
+	JOB[] jobs;
 	
 	/* Purpose: Initialize an ANT object
 	 * Parameters: A given TSP object and an integer number of cities
 	 * Return: N/A
 	 */
-	public ANT(int num_cities, TSP tsp) {
+	public ANT(int num_jobs, SMTTP smttp) {
 		
-		this.num_cities = num_cities;
-		this.tour = new int[num_cities];
-		this.legDistances = tsp.getTsp_distance();
-		tour_score = Double.MAX_VALUE;
+		this.num_jobs = num_jobs;
+		this.jobs = smttp.getJobs();
+		
+		this.workflow = new int[num_jobs];
+		this.workflow_score = Integer.MAX_VALUE;
 	}
 	
 	/* Purpose: Score the ANT's tour
 	 * Parameters: None
 	 * Return: None
 	 */
-	public void scoreTour() {
+	public void scoreWorkflow() {
 		
-		int city1, city2;
-		tour_score = 0;
+		int score = 0;
+		int time_so_far = 0;
 		
-		for (int i = 0; i < num_cities-1; i++) {
-			city1 = tour[i];
-			city2 = tour[i+1];
-			if (city1 < city2) {
-				tour_score += legDistances[city2][city1];
+		int curr_job;
+		int finish_difference;
+		
+		for (int i = 0; i < num_jobs; i++) {
+			
+			curr_job = workflow[i];
+			
+			finish_difference = (time_so_far + jobs[curr_job].getProcessing_time()) - jobs[curr_job].getDue_date();
+			
+			if (finish_difference > 0) {
+				score += finish_difference;
 			}
-			else {
-				tour_score += legDistances[city1][city2];
-			}
+			
+			time_so_far += jobs[curr_job].getProcessing_time();
 		}
+		this.workflow_score = score;
 	}
-
+	
 	/*
 	 * Getters and Setters
 	 */
 
-	public int[] getTour() {
-		return tour;
+	public int[] getWorkflow() {
+		return workflow;
 	}
 
-	public void setTour(int[] tour) {
-		this.tour = tour.clone();
+	public void setWorkflow(int[] workflow) {
+		this.workflow = workflow;
 	}
 
-	public double getTour_score() {
-		return tour_score;
+	public int getWorkflow_score() {
+		return workflow_score;
 	}
 
-	public void setTour_score(double tour_score) {
-		this.tour_score = tour_score;
+	public void setWorkflow_score(int workflow_score) {
+		this.workflow_score = workflow_score;
 	}
-	
+
+	public int getNum_jobs() {
+		return num_jobs;
+	}
+
+	public void setNum_jobs(int num_jobs) {
+		this.num_jobs = num_jobs;
+	}
 
 }

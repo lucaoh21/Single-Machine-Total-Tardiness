@@ -25,25 +25,23 @@ public class EAS {
 	
 	int num_ants;
 	int max_iterations;
-	int num_cities;
-	int optimal;
+	int num_jobs;
 	double alpha;
 	double beta;
 	double rho;
 	double elitism_factor;
-	double stop_percent;
 	String filename;
 	
-	TSP tsp;
+	SMTTP smttp;
 	HIVE hive;
-	Set<Integer> paths_in_best_tour;
+	Set<Integer> transitions_in_best_workflow;
 	
 	public static final double NANO_TO_SEC = 1000000000;
 	public static final int PRINT_ON_ITERATION = 20;
 	public static final int STOP_TIME = Integer.MAX_VALUE;
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
-			double elitism_factor, double stop_percent, int optimal, String filename) {
+			double elitism_factor, String filename) {
 		
 		this.num_ants = num_ants;
 		this.max_iterations = max_iterations;
@@ -51,10 +49,8 @@ public class EAS {
 		this.beta = beta;
 		this.rho = rho;
 		this.elitism_factor = elitism_factor;
-		this.stop_percent = stop_percent;
-		this.optimal = optimal;
 		this.filename = filename;
-		this.paths_in_best_tour = new HashSet<Integer>();
+		this.transitions_in_best_workflow = new HashSet<Integer>();
 	}
 	
 	/*
@@ -71,42 +67,41 @@ public class EAS {
 		double startTime = System.nanoTime();
 		
 		//creates a new traveling salesman problem and initializes
-		tsp = new TSP(filename);
-		num_cities = tsp.getNum_cities();
-		tsp.initializeDistances();
-		tsp.initializePheromone(setBasePheromone());
+		smttp = new SMTTP(filename);
+		num_jobs = smttp.getNum_jobs();
+		smttp.initializePheromone(setBasePheromone());
 		
 		//creates a new hive object
-		hive = new HIVE(num_ants, tsp.getNum_cities(), tsp);
+		hive = new HIVE(num_ants, smttp.getNum_jobs(), smttp);
 		
 		int num_iteration = 0;
 		double bsf_percent = Double.MAX_VALUE;
 		
 		//iterates until max iterations or specified percentage is met
-		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
+		while(num_iteration < max_iterations) {
 			
 			//recalculate the numerator of the prob selection rule
-			tsp.calculateValue(alpha, beta);
+			smttp.calculateValue(alpha, beta);
 			//construct the tours
-			construct(num_iteration);
+			construct();
 			//checks if there is new best
 			if(hive.findBest()) {
-				
 				//if there is a new best, the paths in best_so_far set are updated
-				updatePathSet();
+				updateTransitionSet();
 			}
 			
 			//perform evaporation and depositing of pheromone
 			evaporatePheromone();
 			depositPheromone();
 			
-			bsf_percent = (hive.getBest_score_so_far() / optimal) - 1.0;
+			// bsf_percent = (hive.getBest_score_so_far() / optimal) - 1.0;
 
 			System.out.println("in iteration: " + num_iteration + ", best score is " + hive.getBest_score_so_far());
 
 			num_iteration++;
 		}
 		
+		/* 
 		//print finish message
 		if(bsf_percent <= stop_percent) {
 			System.out.println("The algorithm found a tour of " + hive.getBest_score_so_far() + 
@@ -115,6 +110,7 @@ public class EAS {
 		} else {
 			System.out.println("Max iterations reached.");
 		}
+		*/
 		
 		double endTime = System.nanoTime();
 		double duration = (endTime - startTime) / NANO_TO_SEC;
@@ -133,27 +129,27 @@ public class EAS {
 	 * Return: none, updates the set containing hashkeys for paths in bsf tour
 	 * 
 	 */
-	public void updatePathSet() {
+	public void updateTransitionSet() {
 		
 		//removes the old hashkeys
-		paths_in_best_tour.clear();
+		transitions_in_best_workflow.clear();
 
-		int city1, city2;
+		int job1, job2;
 		
-		//for each city in the bsf tour
-		for(int i = 0; i < num_cities-1; i++) {
+		//for each job in the bsf workflow
+		for(int i = 0; i < num_jobs-1; i++) {
 			
-			//sort the cities in the path
-			if(hive.getBest_tour_so_far()[i] < hive.getBest_tour_so_far()[i+1]) {
-				city1 = hive.getBest_tour_so_far()[i];
-				city2 = hive.getBest_tour_so_far()[i+1];
+			//sort the jobs in the workflow
+			if(hive.getBest_workflow_so_far()[i] < hive.getBest_workflow_so_far()[i+1]) {
+				job1 = hive.getBest_workflow_so_far()[i];
+				job2 = hive.getBest_workflow_so_far()[i+1];
 			} else {
-				city1 = hive.getBest_tour_so_far()[i+1];
-				city2 = hive.getBest_tour_so_far()[i];
+				job1 = hive.getBest_workflow_so_far()[i+1];
+				job2 = hive.getBest_workflow_so_far()[i];
 			}
 		
 			//create hashkey using Cantor Pairing Function
-			paths_in_best_tour.add((((city1 + city2)*(city1 + city2 + 1)) / 2) + city2);
+			transitions_in_best_workflow.add((((job1 + job2)*(job1 + job2 + 1)) / 2) + job2);
 			
 		}
 	}
@@ -166,56 +162,44 @@ public class EAS {
 	 */
 	public double setBasePheromone() {
 		
-		Set<Integer> unvisited_cities = new HashSet<Integer>();
-		//create set of cities to be visited
-		for(int j = 0; j < num_cities; j++) {
-			unvisited_cities.add(j);
+		Set<Integer> unperformed_jobs = new HashSet<Integer>();
+		//create set of jobs to be performed
+		for(int j = 0; j < num_jobs; j++) {
+			unperformed_jobs.add(j);
 		}
 		
 		Random r = new Random();
 		
-		//choose random starting city
-		int curr_city = r.nextInt(num_cities);
-		unvisited_cities.remove(curr_city);
+		//choose random starting job
+		int curr_job = r.nextInt(num_jobs);
+		unperformed_jobs.remove(curr_job);
 		
-		int best_next_city = curr_city;
-		double total_greedy_distance = 0;
-		double distance, best_next_distance;
+		int best_next_job = curr_job;
+		double total_greedy_time = 0;
+		double time, best_next_time;
 		
-		//create a greedy path from the random starting location
-		for(int i = 1; i < num_cities; i++) {
-			best_next_distance = Double.MAX_VALUE;
+		//create a greedy workflow from the random starting location
+		for(int i = 1; i < num_jobs; i++) {
+			best_next_time = Double.MAX_VALUE;
 			
 			//only uses cities that are unvisited
-			for(int city : unvisited_cities) {
+			for(int job : unperformed_jobs) {
 					
-				//only half the distance array is full
-				if(curr_city < city) {
-					distance = tsp.getTsp_distance()[city][curr_city];
-					if(distance < best_next_distance) {
-						best_next_distance = distance;
-						best_next_city = city;
-					}
-					
-				} else {
-					distance = tsp.getTsp_distance()[curr_city][city];
-					if(distance < best_next_distance) {
-						best_next_distance = distance;
-						best_next_city = city;
-					}
-					
+				time = smttp.getProcessing_times()[job];
+				if(time < best_next_time) {
+					best_next_time = time;
+					best_next_job = job;
 				}
-			}
+			} 
 			
 			//add the closest city, and repeat the loop
-			total_greedy_distance += best_next_distance;
-			unvisited_cities.remove(best_next_city);
-			curr_city = best_next_city;
+			total_greedy_time += best_next_time;
+			unperformed_jobs.remove(best_next_job);
+			curr_job = best_next_job;	
 		}
 		
 		//equation for base tau from ant variations handout
-		return (elitism_factor + num_ants)/(rho * total_greedy_distance);
-		
+		return (elitism_factor + num_ants)/(rho * total_greedy_time);
 	}
 	
 	/*
@@ -225,16 +209,16 @@ public class EAS {
 	 * Return: none, sets the tour for each ant in the hive
 	 * 
 	 */
-	public void construct(int iteration) {		
+	public void construct() {		
 		
 		//construct a tour for each ant in the hive
 		for (int i = 0; i < num_ants; i++) {
 			
 			//using the probabilistic selection technique
-			hive.getHive()[i].setTour(probSelection());
+			hive.getHive()[i].setWorkflow(probSelection());
 			
 			//scores the ants tour
-			hive.getHive()[i].scoreTour();
+			hive.getHive()[i].scoreWorkflow();
 
 		}
 
@@ -253,49 +237,49 @@ public class EAS {
 	public int[] probSelection() {
 		
 		//initialize set with all cities
-		Set<Integer> unvisited_cities = new HashSet<Integer>();
-		for(int i = 0; i < num_cities; i++) {
-			unvisited_cities.add(i);
+		Set<Integer> unperformed_jobs = new HashSet<Integer>();
+		for(int i = 0; i < num_jobs; i++) {
+			unperformed_jobs.add(i);
 		}
 		
-		int[] tour = new int[num_cities];
+		int[] workflow = new int[num_jobs];
 
 		Random r = new Random();
 		
-		//choose random starting city
-		int curr_city = r.nextInt(num_cities);
-		unvisited_cities.remove(curr_city);
-		tour[0] = curr_city;
+		//choose random starting job
+		int curr_job = r.nextInt(num_jobs);
+		unperformed_jobs.remove(curr_job);
+		workflow[0] = curr_job;
 		
-		//visit each city once
-		for(int i = 1; i < num_cities; i++) {
+		//start each job once
+		for(int i = 1; i < num_jobs; i++) {
 			
 			//calculates the denominator of the probabilistic selection rule
-			double sum_prob = findSumProb(curr_city, unvisited_cities);
+			double sum_prob = findSumProb(curr_job, unperformed_jobs);
 			//creates an array of probabilities from (0.0, 1.0)
-			double[] prob_array = findProb(curr_city, unvisited_cities, sum_prob);
+			double[] prob_array = findProb(curr_job, unperformed_jobs, sum_prob);
 						
-			//generate random double to pick next city, make sure its not 0
+			//generate random double to pick next job, make sure its not 0
 			double prob = r.nextDouble();
 			while(prob == 0.0) {
 				prob = r.nextDouble();
 			}
 			
-			int next_city = curr_city;
-			//finds which city matches the random generated int
-			for(int j = 0; j < num_cities; j++) {
+			int next_job = curr_job;
+			//finds which job matches the random generated double
+			for(int j = 0; j < num_jobs; j++) {
 				if(prob <= prob_array[j]) {
-					next_city = j;
+					next_job = j;
 					break;
 				}
 			}
 			
-			tour[i] = next_city;
-			unvisited_cities.remove(next_city);
-			curr_city = next_city;
+			workflow[i] = next_job;
+			unperformed_jobs.remove(next_job);
+			curr_job = next_job;
 		}
 		
-		return tour;
+		return workflow;
 	}
 	
 	/*
@@ -305,22 +289,21 @@ public class EAS {
 	 * Return: Returns the sum of path values (double)
 	 * 
 	 */
-	public double findSumProb(int curr_city, Set<Integer> unvisited_cities) {
+	public double findSumProb(int curr_job, Set<Integer> unperformed_jobs) {
 		double sum_prob = 0.0;
 		
 		//only sums the cities that are unvisited
-		for(int city : unvisited_cities) {
+		for(int job : unperformed_jobs) {
 			
 			//larger index first
-			if(curr_city < city) {
-				sum_prob += tsp.getTsp_value()[city][curr_city];
+			if(curr_job < job) {
+				sum_prob += smttp.getSmttp_value()[job][curr_job];
 				
 			} else {
-				sum_prob += tsp.getTsp_value()[curr_city][city];
+				sum_prob += smttp.getSmttp_value()[curr_job][job];
 			
 			}
 		}
-		
 		return sum_prob;
 	}
 	
@@ -334,22 +317,22 @@ public class EAS {
 	 * Return: an array of probabilities from (0.0, 1.0) (double[])
 	 * 
 	 */
-	public double[] findProb(int curr_city, Set<Integer> unvisited_cities, double sum_prob) {
-		double[] prob = new double[num_cities];
+	public double[] findProb(int curr_job, Set<Integer> unperformed_jobs, double sum_prob) {
+		double[] prob = new double[num_jobs];
 		
 		//for each of the cities
-		for(int i = 0; i < num_cities-1; i++) {
+		for(int i = 0; i < num_jobs-1; i++) {
 			
 			//first element in the array has no previous element
 			if(i == 0) {
 				
 				//if the city is unvisited, set probability
-				if(unvisited_cities.contains(i)) {
-					if(curr_city < i) {
-						prob[i] = tsp.getTsp_value()[i][curr_city] / sum_prob;
+				if(unperformed_jobs.contains(i)) {
+					if(curr_job < i) {
+						prob[i] = smttp.getSmttp_value()[i][curr_job] / sum_prob;
 
 					} else {
-						prob[i] = tsp.getTsp_value()[curr_city][i] / sum_prob;
+						prob[i] = smttp.getSmttp_value()[curr_job][i] / sum_prob;
 				
 					}
 					
@@ -362,12 +345,12 @@ public class EAS {
 			} else {
 				
 				//if the city is unvisited, set probability
-				if(unvisited_cities.contains(i)) {
-					if(curr_city < i) {
-						prob[i] = prob[i-1] + (tsp.getTsp_value()[i][curr_city] / sum_prob);
+				if(unperformed_jobs.contains(i)) {
+					if(curr_job < i) {
+						prob[i] = prob[i-1] + (smttp.getSmttp_value()[i][curr_job] / sum_prob);
 
 					} else {
-						prob[i] = prob[i-1] + (tsp.getTsp_value()[curr_city][i] / sum_prob);
+						prob[i] = prob[i-1] + (smttp.getSmttp_value()[curr_job][i] / sum_prob);
 				
 					}
 				
@@ -381,7 +364,7 @@ public class EAS {
 		}
 		
 		//set last probability to 1.0, so range is from 0.0 to 1.0 
-		prob[num_cities-1] = 1.0;
+		prob[num_jobs-1] = 1.0;
 		
 		return prob;
 	}
@@ -399,35 +382,35 @@ public class EAS {
 		
 		int hash_key;
 		double added_pheromone;
-		int city1, city2;
+		int job1, job2;
 		
 		//for each ant
 		for(int i = 0; i < num_ants; i++) {
 			added_pheromone = 0;
 			
-			//for each leg
-			for(int j = 0; j < num_cities - 1; j++) {
+			//for each transition
+			for(int j = 0; j < num_jobs - 1; j++) {
 				
-				//sort the cities in the path
-				if(hive.getHive()[i].tour[j] < hive.getHive()[i].tour[j+1]) {
-					city1 = hive.getHive()[i].tour[j];
-					city2 = hive.getHive()[i].tour[j+1];
+				//sort the jobs in the workflow
+				if(hive.getHive()[i].workflow[j] < hive.getHive()[i].workflow[j+1]) {
+					job1 = hive.getHive()[i].workflow[j];
+					job2 = hive.getHive()[i].workflow[j+1];
 				} else {
-					city1 = hive.getHive()[i].tour[j+1];
-					city2 = hive.getHive()[i].tour[j];
+					job1 = hive.getHive()[i].workflow[j+1];
+					job2 = hive.getHive()[i].workflow[j];
 				}
 
 				//check for elitism factor by checking hashkey
-				hash_key = (((city1 + city2)*(city1 + city2 + 1)) / 2) + city2;
-				if(paths_in_best_tour.contains(hash_key)) {
+				hash_key = (((job1 + job2)*(job1 + job2 + 1)) / 2) + job2;
+				if(transitions_in_best_workflow.contains(hash_key)) {
 										
-					//if the leg is in bsf tour, add more pheromone
+					//if the transition is in bsf workflow, add more pheromone
 					added_pheromone += elitism_factor * (1/hive.getBest_score_so_far());
 				}
 				
 				//increase pheromone in leg normally
-				added_pheromone += 1/hive.getHive()[i].getTour_score();
-				tsp.increasePheromone(city2, city1, added_pheromone);	
+				added_pheromone += 1 / hive.getHive()[i].getWorkflow_score();
+				smttp.increasePheromone(job2, job1, added_pheromone);	
 				
 			}
 		}
@@ -441,9 +424,9 @@ public class EAS {
 	 * 
 	 */
 	public void evaporatePheromone() {
-		for(int i = 0; i < num_cities; i++) {
+		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
-				tsp.evaporatePheromone(i, j, rho);
+				smttp.evaporatePheromone(i, j, rho);
 			}
 		}
 	}

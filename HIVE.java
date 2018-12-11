@@ -14,26 +14,26 @@
 public class HIVE {
 	
 	ANT[] hive;
-	int num_cities;
+	int num_jobs;
 	int num_ants;
 	double best_score_so_far;
-	int[] best_tour_so_far;
+	int[] best_workflow_so_far;
 	
 	/* Purpose: Initialize a HIVE object
 	 * Parameters: An integer number of ants, an integer number of cities,
 	 * and the TSP problem instance
 	 * Return: N/A
 	 */
-	public HIVE(int num_ants, int num_cities, TSP tsp) {
+	public HIVE(int num_ants, int num_jobs, SMTTP smttp) {
 		
 		this.num_ants = num_ants;
-		this.num_cities = num_cities;
+		this.num_jobs = num_jobs;
 		this.hive = new ANT[num_ants];
 		this.best_score_so_far = Double.MAX_VALUE;
-		this.best_tour_so_far = new int[num_cities];
+		this.best_workflow_so_far = new int[num_jobs];
 		
 		for (int i = 0; i < num_ants; i++) {
-			hive[i] = new ANT(num_cities, tsp);
+			hive[i] = new ANT(num_jobs, smttp);
 		}
 		
 	}
@@ -47,9 +47,9 @@ public class HIVE {
 		
 		boolean is_new_best = false;
 		for (int i = 0; i < num_ants; i++) {
-			if (hive[i].getTour_score() < best_score_so_far) {
-				best_score_so_far = hive[i].getTour_score();
-				best_tour_so_far = hive[i].getTour().clone();
+			if (hive[i].getWorkflow_score() < best_score_so_far) {
+				this.best_score_so_far = hive[i].getWorkflow_score();
+				this.best_workflow_so_far = hive[i].getWorkflow().clone();
 				is_new_best = true;
 			}
 		}	
@@ -68,12 +68,13 @@ public class HIVE {
 		this.hive = hive.clone();
 	}
 
-	public int getNum_cities() {
-		return num_cities;
+	public int getNum_jobs() {
+		return num_jobs;
 	}
 
-	public void setNum_cities(int num_cities) {
-		this.num_cities = num_cities;
+
+	public void setNum_jobs(int num_jobs) {
+		this.num_jobs = num_jobs;
 	}
 
 	public int getNum_ants() {
@@ -92,12 +93,12 @@ public class HIVE {
 		this.best_score_so_far = best_score_so_far;
 	}
 
-	public int[] getBest_tour_so_far() {
-		return best_tour_so_far;
+	public int[] getBest_workflow_so_far() {
+		return best_workflow_so_far;
 	}
 
-	public void setBest_tour_so_far(int[] best_tour_so_far) {
-		this.best_tour_so_far = best_tour_so_far.clone();
+	public void setBest_workflow_so_far(int[] best_workflow_so_far) {
+		this.best_workflow_so_far = best_workflow_so_far.clone();
 	}
 
 }
