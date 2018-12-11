@@ -123,13 +123,13 @@ public class SMTWTP {
 	 * of beta
 	 * Return: None
 	 */
-	public void calculateValue(double alpha, double beta) {
+	public void calculateValue(double alpha, double beta, int time_elapsed) {
 		double heuristic, pheromone;
 		
 		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
 				pheromone = smtwtp_pheromone[i][j];
-				heuristic = 1 / (double)due_dates[i];
+				heuristic = 1 / (double) Math.max(due_dates[i], time_elapsed + jobs[i].getProcessing_time());
 				smtwtp_value[i][j] = Math.pow(pheromone, alpha) * Math.pow(heuristic, beta);
 			}
 		}

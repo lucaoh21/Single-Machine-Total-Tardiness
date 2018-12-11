@@ -38,6 +38,8 @@ public class EAS {
 	HIVE hive;
 	Set<Integer> transitions_in_best_workflow;
 	
+	JOB[] jobs;
+	
 	public static final double NANO_TO_SEC = 1000000000;
 	public static final int PRINT_ON_ITERATION = 20;
 	public static final int STOP_TIME = Integer.MAX_VALUE;
@@ -66,13 +68,14 @@ public class EAS {
 	 * Return: none, prints the best so far in each iteration
 	 * 
 	 */
-	public void runEAS() {
+	public int[] runEAS() {
 		
 		double startTime = System.nanoTime();
 		
 		//creates a new traveling salesman problem and initializes
 		smtwtp = new SMTWTP(filename);
 		num_jobs = smtwtp.getNum_jobs();
+		jobs = smtwtp.getJobs();
 		smtwtp.initializePheromone(setBasePheromone());
 		
 		//creates a new hive object
@@ -85,7 +88,7 @@ public class EAS {
 		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
 			
 			//recalculate the numerator of the prob selection rule
-			smtwtp.calculateValue(alpha, beta);
+			smtwtp.calculateValue(alpha, beta, 0);
 			//construct the tours
 			construct();
 			//checks if there is new best
@@ -118,6 +121,8 @@ public class EAS {
 		double duration = (endTime - startTime) / NANO_TO_SEC;
 		
 		System.out.println("Time duration is: " + duration);
+		
+		return hive.getBest_workflow_so_far();
 
 	}
 	
@@ -239,6 +244,8 @@ public class EAS {
 	 */
 	public int[] probSelection() {
 		
+		int time_elapsed = 0;
+		
 		//initialize set with all cities
 		Set<Integer> unperformed_jobs = new HashSet<Integer>();
 		for(int i = 0; i < num_jobs; i++) {
@@ -253,9 +260,15 @@ public class EAS {
 		int curr_job = r.nextInt(num_jobs);
 		unperformed_jobs.remove(curr_job);
 		workflow[0] = curr_job;
-		
+				
 		//start each job once
 		for(int i = 1; i < num_jobs; i++) {
+			
+			// time_elapsed += jobs[curr_job].getProcessing_time();
+			// System.out.println(time_elapsed);
+			
+			// replace 
+			// smtwtp.calculateValue(alpha, beta, time_elapsed);
 			
 			//calculates the denominator of the probabilistic selection rule
 			double sum_prob = findSumProb(curr_job, unperformed_jobs);
@@ -321,9 +334,10 @@ public class EAS {
 	 * 
 	 */
 	public double[] findProb(int curr_job, Set<Integer> unperformed_jobs, double sum_prob) {
+		
 		double[] prob = new double[num_jobs];
 		
-		//for each of the cities
+		//for each of the jobs
 		for(int i = 0; i < num_jobs-1; i++) {
 			
 			//first element in the array has no previous element
@@ -331,6 +345,7 @@ public class EAS {
 				
 				//if the city is unvisited, set probability
 				if(unperformed_jobs.contains(i)) {
+					
 					if(curr_job < i) {
 						prob[i] = smtwtp.getSmtwtp_value()[i][curr_job] / sum_prob;
 

@@ -30,6 +30,8 @@ public class SMTWTP_HYBRID {
 	
 	public static void main(String[] args) {
 		
+		int[] best_eas_solution;
+		
 		readArguments(args);
 		
 		System.out.println("Num ants: " + num_ants + ", num iterations: " + num_iterations + 
@@ -38,7 +40,12 @@ public class SMTWTP_HYBRID {
 				", stop percent: " + stop_percent + ", filename: " + filename);
 			
 			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, filename);
-			eas.runEAS();
+			best_eas_solution = eas.runEAS();
+			
+			System.out.println("Best Solution found by EAS: ");
+			for (int i = 0; i < best_eas_solution.length; i++) {
+				System.out.print(best_eas_solution[i] + " ");
+			}
 	}
 	
 	public static void readArguments(String[] args) {
