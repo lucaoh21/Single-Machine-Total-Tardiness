@@ -232,34 +232,4 @@ public class GA {
         
         return population;
     }
-    
-    /*
-    // read in the arguments for ga
-	public void ReadArguments(String[] args) {
-        
-            testFile = args[0];
-            populationSize = Integer.parseInt(args[1]);
-            selectionType = args[2];
-            crossoverMethod = args[3];
-            crossoverProb = Float.parseFloat(args[4]);
-            mutationProb = Float.parseFloat(args[5]);
-            numGenerations = Integer.parseInt(args[6]);
-        
-    }
-
-	// print out info when algorithm finished
-	public void algorithmDone(Individual best, int fitness, int iteration) {
-
-        double percentClauses = ((double)fitness/(double)numClauses)*100;
-
-        System.out.println("Problem file: " + testFile);
-        System.out.println("Number of variables: " + numVariables);
-        System.out.println("Number of clauses: " + numClauses);
-        System.out.println("Number of clauses satisfied: " + fitness);
-        System.out.println("Percentage of clauses satisfied: " + percentClauses + "%");
-        System.out.println("Best assignment: " + best.GetAssignments());
-        System.out.println("Found in iteration " + (iteration+1));
-        System.exit(0);
-    }
-    */
 }

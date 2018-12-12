@@ -69,7 +69,7 @@ public class EAS {
 	 */
 	public int[] runEAS() {
 		
-		double startTime = System.nanoTime();
+		// double startTime = System.nanoTime();
 		
 		num_jobs = smtwtp.getNum_jobs();
 		jobs = smtwtp.getJobs();
@@ -85,7 +85,7 @@ public class EAS {
 		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
 			
 			//recalculate the numerator of the prob selection rule
-			smtwtp.calculateValue(alpha, beta, 0);
+			smtwtp.calculateValue(alpha, beta);
 			//construct the tours
 			construct();
 			//checks if there is new best
@@ -243,8 +243,6 @@ public class EAS {
 	 */
 	public int[] probSelection() {
 		
-		int time_elapsed = 0;
-		
 		//initialize set with all cities
 		Set<Integer> unperformed_jobs = new HashSet<Integer>();
 		for(int i = 0; i < num_jobs; i++) {
@@ -262,12 +260,6 @@ public class EAS {
 				
 		//start each job once
 		for(int i = 1; i < num_jobs; i++) {
-			
-			// time_elapsed += jobs[curr_job].getProcessing_time();
-			// System.out.println(time_elapsed);
-			
-			// replace 
-			// smtwtp.calculateValue(alpha, beta, time_elapsed);
 			
 			//calculates the denominator of the probabilistic selection rule
 			double sum_prob = findSumProb(curr_job, unperformed_jobs);

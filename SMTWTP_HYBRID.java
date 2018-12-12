@@ -30,7 +30,7 @@ public class SMTWTP_HYBRID {
 	
 	public static int population_size = 50;
 	public static int max_generations = 50;
-	public static double mutation_prob = 0.1;
+	public static double mutation_prob = 0.4;
 	public static double crossover_prob = 0.6;
 	public static int num_jobs;
 	
