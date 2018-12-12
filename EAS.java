@@ -121,7 +121,6 @@ public class EAS {
 		System.out.println("Time duration is: " + duration);
 		*/
 		
-		System.out.println(hive.getBest_score_so_far());
 		return hive.getBest_workflow_so_far();
 
 	}

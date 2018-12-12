@@ -55,7 +55,7 @@ public class SMTWTP_HYBRID {
 			best_eas_solutions[i] = eas.runEAS();
 		}
 		
-		GeneticAlgorithm genetic_algorithm = new GeneticAlgorithm(population_size, mutation_prob, max_generations, crossover_prob);
+		GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
 		genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
 	}
 	
