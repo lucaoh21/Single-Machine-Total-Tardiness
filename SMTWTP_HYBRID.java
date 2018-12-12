@@ -28,24 +28,35 @@ public class SMTWTP_HYBRID {
 	//the smttp problem
 	public static String filename;
 	
+	public static int population_size = 50;
+	public static int max_generations = 50;
+	public static double mutation_prob = 0.1;
+	public static double crossover_prob = 0.6;
+	public static int num_jobs;
+	
+	public static SMTWTP smtwtp;
+	
 	public static void main(String[] args) {
-		
-		int[] best_eas_solution;
-		
+				
 		readArguments(args);
+		
+		smtwtp = new SMTWTP(filename);
+		num_jobs = smtwtp.getNum_jobs();
+		int[][] best_eas_solutions = new int[population_size][num_jobs];
 		
 		System.out.println("Num ants: " + num_ants + ", num iterations: " + num_iterations + 
 				", alpha: " + alpha + ", beta: " + beta + ", rho: " + 
 				rho + ", elitism factor: " + elitism_factor + ", optimal: " + optimal + 
 				", stop percent: " + stop_percent + ", filename: " + filename);
-			
-			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, filename);
-			best_eas_solution = eas.runEAS();
-			
-			System.out.println("Best Solution found by EAS: ");
-			for (int i = 0; i < best_eas_solution.length; i++) {
-				System.out.print(best_eas_solution[i] + " ");
-			}
+		
+		EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
+		
+		for (int i = 0; i < population_size; i++) {
+			best_eas_solutions[i] = eas.runEAS();
+		}
+		
+		GeneticAlgorithm genetic_algorithm = new GeneticAlgorithm(population_size, mutation_prob, max_generations, crossover_prob);
+		genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
 	}
 	
 	public static void readArguments(String[] args) {

@@ -32,7 +32,6 @@ public class EAS {
 	double elitism_factor;
 	int optimal;
 	double stop_percent;
-	String filename;
 	
 	SMTWTP smtwtp;
 	HIVE hive;
@@ -45,7 +44,7 @@ public class EAS {
 	public static final int STOP_TIME = Integer.MAX_VALUE;
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
-			double elitism_factor, int optimal, double stop_percent, String filename) {
+			double elitism_factor, int optimal, double stop_percent, SMTWTP smtwtp) {
 		
 		this.num_ants = num_ants;
 		this.max_iterations = max_iterations;
@@ -55,7 +54,7 @@ public class EAS {
 		this.elitism_factor = elitism_factor;
 		this.optimal = optimal;
 		this.stop_percent = stop_percent;
-		this.filename = filename;
+		this.smtwtp = smtwtp;
 		this.transitions_in_best_workflow = new HashSet<Integer>();
 	}
 	
@@ -72,8 +71,6 @@ public class EAS {
 		
 		double startTime = System.nanoTime();
 		
-		//creates a new traveling salesman problem and initializes
-		smtwtp = new SMTWTP(filename);
 		num_jobs = smtwtp.getNum_jobs();
 		jobs = smtwtp.getJobs();
 		smtwtp.initializePheromone(setBasePheromone());
@@ -103,11 +100,12 @@ public class EAS {
 			
 			bsf_percent = (hive.getBest_score_so_far() / (double) optimal) - 1.0;
 
-			System.out.println("in iteration: " + num_iteration + ", best score is " + hive.getBest_score_so_far());
+			// System.out.println("in iteration: " + num_iteration + ", best score is " + hive.getBest_score_so_far());
 
 			num_iteration++;
 		}
 		
+		/*
 		//print finish message
 		if(bsf_percent <= stop_percent) {
 			System.out.println("The algorithm found a tour of " + hive.getBest_score_so_far() + 
@@ -121,7 +119,9 @@ public class EAS {
 		double duration = (endTime - startTime) / NANO_TO_SEC;
 		
 		System.out.println("Time duration is: " + duration);
+		*/
 		
+		System.out.println(hive.getBest_score_so_far());
 		return hive.getBest_workflow_so_far();
 
 	}
