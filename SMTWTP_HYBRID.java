@@ -28,10 +28,13 @@ public class SMTWTP_HYBRID {
 	//the smttp problem
 	public static String filename;
 	
-	public static int population_size = 50;
-	public static int max_generations = 50;
-	public static double mutation_prob = 0.4;
-	public static double crossover_prob = 0.6;
+	public static int population_size;
+	public static int max_generations;
+	public static double mutation_prob;
+	public static double crossover_prob;
+	
+	public static String command;
+	
 	public static int num_jobs;
 	
 	public static SMTWTP smtwtp;
@@ -46,17 +49,27 @@ public class SMTWTP_HYBRID {
 		
 		System.out.println("Num ants: " + num_ants + ", num iterations: " + num_iterations + 
 				", alpha: " + alpha + ", beta: " + beta + ", rho: " + 
-				rho + ", elitism factor: " + elitism_factor + ", optimal: " + optimal + 
-				", stop percent: " + stop_percent + ", filename: " + filename);
+				rho + ", elitism factor: " + elitism_factor + ", population_size: " + population_size 
+				+ ", max_generations: " + max_generations + ", crossover_prob: " + crossover_prob + ", mutation_prob: " 
+				+ mutation_prob +", optimal: " + optimal + ", stop percent: " + stop_percent + ", filename: " 
+				+ filename + ", command: " + command);
 		
-		EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
+		if (command.equals("eas") || command.equals("both")) {
+			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
 		
-		for (int i = 0; i < population_size; i++) {
-			best_eas_solutions[i] = eas.runEAS();
+			for (int i = 0; i < population_size; i++) {
+				best_eas_solutions[i] = eas.runEAS();
+			}
+			
+			if (command.equals("eas")) {
+
+			}
 		}
 		
-		GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
-		genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
+		if (command.equals("ga") || command.equals("both")) {
+			GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
+			genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
+		}
 	}
 	
 	public static void readArguments(String[] args) {
@@ -68,9 +81,15 @@ public class SMTWTP_HYBRID {
 				beta = Double.parseDouble(args[3]);
 				rho = Double.parseDouble(args[4]);
 				elitism_factor = Double.parseDouble(args[5]);
-				optimal = Integer.parseInt(args[6]);
-				stop_percent = Double.parseDouble(args[7]);
-				filename = args[8];
+				population_size = Integer.parseInt(args[6]);
+				max_generations = Integer.parseInt(args[7]);
+				crossover_prob = Double.parseDouble(args[8]);
+				mutation_prob = Double.parseDouble(args[9]);
+				optimal = Integer.parseInt(args[10]);
+				stop_percent = Double.parseDouble(args[11]);
+				filename = args[12];
+				command = args[13];
+				
 		} catch(NullPointerException e) {
 			System.out.println("Please verify your inputs and try again");
 			System.exit(0);

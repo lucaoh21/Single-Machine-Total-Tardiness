@@ -429,7 +429,7 @@ public class EAS {
 	 * Purpose: To generally evaporate pheromone off each leg in the environemnt, 
 	 * 	based on the user inputed value for rho.
 	 * Parameters: none
-	 * Return: none, sets teh new pheromone values
+	 * Return: none, sets the new pheromone values
 	 * 
 	 */
 	public void evaporatePheromone() {
