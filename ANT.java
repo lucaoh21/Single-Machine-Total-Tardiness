@@ -2,11 +2,10 @@
  * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
  * Date: 11/7/2018
  * 
- * This class defines an ANT object for use in Ant Colony Optimization on the TSP.
- * Each ANT object can hold a tour of cities, represented as an array of integers,
- * a score of that tour of cities, represented as a double, an integer number of
- * cities in the TSP problem instance, and an array of path distances between cities
- * in the problem instance, represented as a 2D array of doubles.
+ * This class defines an ANT object for use in Ant Colony Optimization on the SMTWTP.
+ * Each ANT object can hold workflow, represented as an array of integers,
+ * a score of that workflow of jobs, represented as a double, an integer number of
+ * jobs in the problem instance, and an array of the jobs, represented as an array of jobs.
  * 
  */
 
@@ -19,7 +18,7 @@ public class ANT {
 	JOB[] jobs;
 	
 	/* Purpose: Initialize an ANT object
-	 * Parameters: A given TSP object and an integer number of cities
+	 * Parameters: The number of jobs and a given SMTWTP object.
 	 * Return: N/A
 	 */
 	public ANT(int num_jobs, SMTWTP smtwtp) {
@@ -31,7 +30,7 @@ public class ANT {
 		this.workflow_score = Integer.MAX_VALUE;
 	}
 	
-	/* Purpose: Score the ANT's tour
+	/* Purpose: Score the ANT's workflow
 	 * Parameters: None
 	 * Return: None
 	 */

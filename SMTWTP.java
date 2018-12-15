@@ -49,7 +49,10 @@ public class SMTWTP {
 				else if (counter == DUE_DATE) {
 					
 					for (int i = 0; i < num_jobs; i++) {
-						due_dates[i] = Integer.parseInt(line[i]);
+						int temp = Integer.parseInt(line[i]);
+						due_dates[i] = temp;
+
+						//due_dates[i] = Integer.parseInt(line[i]);
 					}
 				}
 				

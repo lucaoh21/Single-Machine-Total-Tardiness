@@ -2,11 +2,11 @@
  * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
  * Date: 11/7/2018
  * 
- * This class defines a HIVE object for use in Ant Colony Optimization on the TSP.
+ * This class defines a HIVE object for use in Ant Colony Optimization on the SMTWTP.
  * A HIVE object contains all of the ANTs for use in the algorithms, stored as an
- * array of ANTs, the integer number of cities in the TSP problem instance, the
+ * array of ANTs, the integer number of jobs in the SMTWTP problem instance, the
  * integer number of ants for use in the algorithm instance, the score of the best
- * tour found so far by any ants, stored as a double, and the best tour found so
+ * workflow found so far by any ants, stored as a double, and the best worklow found so
  * far by any of the ants, stored as an array of integers. 
  * 
  */
@@ -20,8 +20,7 @@ public class HIVE {
 	int[] best_workflow_so_far;
 	
 	/* Purpose: Initialize a HIVE object
-	 * Parameters: An integer number of ants, an integer number of cities,
-	 * and the TSP problem instance
+	 * Parameters: An integer number of ants, an integer number of jobs, and the SMTWTP instance.
 	 * Return: N/A
 	 */
 	public HIVE(int num_ants, int num_jobs, SMTWTP smtwtp) {
@@ -32,6 +31,7 @@ public class HIVE {
 		this.best_score_so_far = Double.MAX_VALUE;
 		this.best_workflow_so_far = new int[num_jobs];
 		
+		//create the ants
 		for (int i = 0; i < num_ants; i++) {
 			hive[i] = new ANT(num_jobs, smtwtp);
 		}
@@ -39,7 +39,7 @@ public class HIVE {
 	}
 
 	
-	/* Purpose: Find the best tour of all the ANTs in the HIVE
+	/* Purpose: Find the best workflow of all the ANTs in the HIVE
 	 * Parameters: None
 	 * Return: boolean indicating whether a new best tour was found
 	 */

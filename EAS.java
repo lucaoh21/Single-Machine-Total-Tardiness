@@ -2,14 +2,14 @@
  * Author Luca Ostertag-Hill, Tom Lucy, Jake Rourke
  * Date 11/7/2018
  * 
- * This class defines the Elitist Ant System algorithm. Called by RUNACO and given
+ * This class defines the Elitist Ant System algorithm. Called by SMTWTP_HYBRID and given
  * the user inputed values, it runs the EAS algorithm for the specified number of
  * iterations or until a percentage of the optimal value is met. The EAS algorithm
- * (with m ants) iteratively builds m tours using the probability
- * selection rule. The probability rule randomly chooses a path based on 
- * probabilities assigned by a path's pheromone and heuristic. After all the tours are
+ * (with m ants) iteratively builds m workflows using the probability
+ * selection rule. The probability rule randomly chooses a job based on 
+ * probabilities assigned by a job's pheromone and heuristic. After all the workflows are
  * constructed in an iteration, the pheromone levels are updated. Pheromone is 
- * deposited on each leg in ants tour. Further, if that leg is part of the best tour
+ * deposited on each path in an ants tour. Further, if that leg is part of the best workflow
  * so far, additional pheromone is deposited. A global pheromone rule evaporates
  * pheromone on each leg in the environment depending on the user inputed value for rho.
  * The class contains a base-pheromone equation from the ACO handout, that is
@@ -33,6 +33,9 @@ public class EAS {
 	int optimal;
 	double stop_percent;
 	
+	double best_all_time;
+	int[] best_workflow;
+	
 	SMTWTP smtwtp;
 	HIVE hive;
 	Set<Integer> transitions_in_best_workflow;
@@ -42,6 +45,7 @@ public class EAS {
 	public static final double NANO_TO_SEC = 1000000000;
 	public static final int PRINT_ON_ITERATION = 20;
 	public static final int STOP_TIME = Integer.MAX_VALUE;
+
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
 			double elitism_factor, int optimal, double stop_percent, SMTWTP smtwtp) {
@@ -56,11 +60,13 @@ public class EAS {
 		this.stop_percent = stop_percent;
 		this.smtwtp = smtwtp;
 		this.transitions_in_best_workflow = new HashSet<Integer>();
+		this.best_all_time = Double.MAX_VALUE;
+		this.best_workflow = new int[smtwtp.getNum_jobs()];
 	}
 	
 	/*
-	 * Purpose: The main algorithm of the EAS algorithm. It iteratively build tours, finds
-	 * 	the best tour, and updates pheromone levels. The algorithm stops iterating when 
+	 * Purpose: The main algorithm of the EAS algorithm. It iteratively builds workflows, finds
+	 * 	the best workflow, and updates pheromone levels. The algorithm stops iterating when 
 	 * 	a specified number of iterations is met or if the algorithm has found a 
 	 * 	solution within the specified optimal percentage.
 	 * Parameters: none
@@ -86,7 +92,7 @@ public class EAS {
 			
 			//recalculate the numerator of the prob selection rule
 			smtwtp.calculateValue(alpha, beta, 0);
-			//construct the tours
+			//construct the workflows
 			construct();
 			//checks if there is new best
 			if(hive.findBest()) {
@@ -99,9 +105,6 @@ public class EAS {
 			depositPheromone();
 			
 			bsf_percent = (hive.getBest_score_so_far() / (double) optimal) - 1.0;
-
-			// System.out.println("in iteration: " + num_iteration + ", best score is " + hive.getBest_score_so_far());
-
 			num_iteration++;
 		}
 		
@@ -121,19 +124,25 @@ public class EAS {
 		System.out.println("Time duration is: " + duration);
 		*/
 		
-		System.out.println(hive.getBest_score_so_far());
+		//System.out.println(hive.getBest_score_so_far());
+		
+		if(hive.getBest_score_so_far() < best_all_time) {
+			best_all_time = hive.getBest_score_so_far();
+			best_workflow = hive.getBest_workflow_so_far();
+		}
+		
 		return hive.getBest_workflow_so_far();
 
 	}
 	
 	/*
 	 * Purpose: To update the set of legs of the best tour so far. This set contains
-	 * 	a hashkey (int) that represents a path from i to j. The values of the two cities
+	 * 	a hashkey (int) that represents a path from job i to j. The values of the two jobs
 	 * 	are combined using the Cantor function, so one value is produced and can be
 	 * 	added to the set. This is helpful when we later want to determine if a specific
 	 * 	leg is in the bsf tour.
 	 * Parameters: none
-	 * Return: none, updates the set containing hashkeys for paths in bsf tour
+	 * Return: none, updates the set containing hashkeys for paths in bsf workflow
 	 * 
 	 */
 	public void updateTransitionSet() {
@@ -162,7 +171,7 @@ public class EAS {
 	}
 	
 	/*
-	 * Purpose: To determine the base tau for the paths in the problem, useing
+	 * Purpose: To determine the base tau for the paths in the problem, using
 	 *  the equation from the handout to calculate the base tau.
 	 * Parameters: none
 	 * Return: General base tau (double) for the problem.
@@ -189,7 +198,7 @@ public class EAS {
 		for(int i = 1; i < num_jobs; i++) {
 			best_next_time = Double.MAX_VALUE;
 			
-			//only uses cities that are unvisited
+			//only uses jobs that are unperformed
 			for(int job : unperformed_jobs) {
 				
 				// greedily select for shorter times and larger weights
@@ -200,7 +209,7 @@ public class EAS {
 				}
 			} 
 			
-			//add the closest city, and repeat the loop
+			//add the closest job, and repeat the loop
 			total_greedy_time += best_next_time;
 			unperformed_jobs.remove(best_next_job);
 			curr_job = best_next_job;	
@@ -211,21 +220,21 @@ public class EAS {
 	}
 	
 	/*
-	 * Purpose: Constructs a tour for each ant in the hive. Performs probabilistic 
-	 * selection. It also calls scoreTour() to score the tour of each ant. 
+	 * Purpose: Constructs a workflow for each ant in the hive. Performs probabilistic 
+	 * selection. It also scores the workflows of each ant. 
 	 * Parameters: none
-	 * Return: none, sets the tour for each ant in the hive
+	 * Return: none, sets the workflow for each ant in the hive
 	 * 
 	 */
 	public void construct() {		
 		
-		//construct a tour for each ant in the hive
+		//construct a workflow for each ant in the hive
 		for (int i = 0; i < num_ants; i++) {
 			
 			//using the probabilistic selection technique
 			hive.getHive()[i].setWorkflow(probSelection());
 			
-			//scores the ants tour
+			//scores the ants workflow
 			hive.getHive()[i].scoreWorkflow();
 
 		}
@@ -233,20 +242,20 @@ public class EAS {
 	}
 	
 	/*
-	 * Purpose: Constructs a tour for an ant using the probabilistic selection rule
+	 * Purpose: Constructs a workflow for an ant using the probabilistic selection rule
 	 * 	for the general Ant System algorithm. Each leg is assigned a probability based
 	 * 	on the pheromone level of the leg and the heuristic info. The leg is then chosen
 	 * 	randomly based on these probabilities. Finally, it calls the local pheromone
 	 * 	update rule on the constructed tour.
 	 * Parameters: none
-	 * Return: Returns a completed tour (int[])
+	 * Return: Returns a completed workflow (int[])
 	 * 
 	 */
 	public int[] probSelection() {
 		
 		int time_elapsed = 0;
 		
-		//initialize set with all cities
+		//initialize set with all jobs
 		Set<Integer> unperformed_jobs = new HashSet<Integer>();
 		for(int i = 0; i < num_jobs; i++) {
 			unperformed_jobs.add(i);
@@ -263,12 +272,6 @@ public class EAS {
 				
 		//start each job once
 		for(int i = 1; i < num_jobs; i++) {
-			
-			// time_elapsed += jobs[curr_job].getProcessing_time();
-			// System.out.println(time_elapsed);
-			
-			// replace 
-			// smtwtp.calculateValue(alpha, beta, time_elapsed);
 			
 			//calculates the denominator of the probabilistic selection rule
 			double sum_prob = findSumProb(curr_job, unperformed_jobs);
@@ -301,14 +304,14 @@ public class EAS {
 	/*
 	 * Purpose: To calculate the denominator of the probabilistic selection rule. This
 	 * 	is the sum of each ants pheromone^alpha*heuristic^beta.
-	 * Parameters: the current city the ant is at (int), the set of unvisited cities (Set<Integer>)
+	 * Parameters: the current city the ant is at (int), the set of unvisited jobs (Set<Integer>)
 	 * Return: Returns the sum of path values (double)
 	 * 
 	 */
 	public double findSumProb(int curr_job, Set<Integer> unperformed_jobs) {
 		double sum_prob = 0.0;
 		
-		//only sums the cities that are unvisited
+		//only sums the jobs that are unvisited
 		for(int job : unperformed_jobs) {
 			
 			//larger index first
@@ -325,10 +328,10 @@ public class EAS {
 	
 	/*
 	 * Purpose: To create an array of probabilities for each of the paths from the current
-	 * 	city. The array stores the probability of each path + the probability of the path
+	 * 	job. The array stores the probability of each path + the probability of the path
 	 * 	at the index before it (so with probabilities 0.2, 0.3, 0.5 the array is [0.2, 0.5, 1.0]).
 	 * 	This allows us to generate a random double, which will correspond to a value in the array.
-	 * Parameters: the current city the ant is at (int), the set of unvisited cities (Set<Integer>),
+	 * Parameters: the current job the ant is at (int), the set of unvisited jobs (Set<Integer>),
 	 * 	the denominator of the selection rule (double)
 	 * Return: an array of probabilities from (0.0, 1.0) (double[])
 	 * 
@@ -343,7 +346,7 @@ public class EAS {
 			//first element in the array has no previous element
 			if(i == 0) {
 				
-				//if the city is unvisited, set probability
+				//if the job is unperformed, set probability
 				if(unperformed_jobs.contains(i)) {
 					
 					if(curr_job < i) {
@@ -354,7 +357,7 @@ public class EAS {
 				
 					}
 					
-				//if city is visited, probability is 0.0
+				//if job is performed, probability is 0.0
 				} else {
 					prob[i] = 0.0;
 				}
@@ -362,7 +365,7 @@ public class EAS {
 			//if not first element, add previous elements probability
 			} else {
 				
-				//if the city is unvisited, set probability
+				//if the job is unperformed, set probability
 				if(unperformed_jobs.contains(i)) {
 					if(curr_job < i) {
 						prob[i] = prob[i-1] + (smtwtp.getSmtwtp_value()[i][curr_job] / sum_prob);
@@ -372,7 +375,7 @@ public class EAS {
 				
 					}
 				
-				//if city is visited, probability is previous element value
+				//if job is performed, probability is previous element value
 				} else {
 					prob[i] = prob[i-1];
 				}
@@ -438,7 +441,7 @@ public class EAS {
 	 * Purpose: To generally evaporate pheromone off each leg in the environemnt, 
 	 * 	based on the user inputed value for rho.
 	 * Parameters: none
-	 * Return: none, sets teh new pheromone values
+	 * Return: none, sets the new pheromone values
 	 * 
 	 */
 	public void evaporatePheromone() {
@@ -447,6 +450,22 @@ public class EAS {
 				smtwtp.evaporatePheromone(i, j, rho);
 			}
 		}
+	}
+
+	public double getBest_all_time() {
+		return best_all_time;
+	}
+
+	public void setBest_all_time(double best_all_time) {
+		this.best_all_time = best_all_time;
+	}
+
+	public int[] getBest_workflow() {
+		return best_workflow;
+	}
+
+	public void setBest_workflow(int[] best_workflow) {
+		this.best_workflow = best_workflow;
 	}
 
 }

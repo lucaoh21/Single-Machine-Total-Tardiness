@@ -83,7 +83,7 @@ public class GeneticAlgorithm {
 				}
 			}
 			
-			System.out.println("Generation " + generation + ", best score is " + best_score);
+			//System.out.println("Generation " + generation + ", best score is " + best_score);
 			
 			generation++;
 		}
@@ -114,11 +114,11 @@ public class GeneticAlgorithm {
         		one = population[index1];
         		two = population[index2];
         	
-        		if (one.getWorkflow_score() > two.getWorkflow_score()) {
+        		if (one.getWorkflow_score() < two.getWorkflow_score()) {
         			parents[count] = one;
         			++count;
         		}
-        		else if (one.getWorkflow_score() < two.getWorkflow_score()) {
+        		else if (one.getWorkflow_score() >= two.getWorkflow_score()) {
         			parents[count] = two;
         			++count;
         		}
@@ -194,8 +194,11 @@ public class GeneticAlgorithm {
         int temp;
         int[] workflow;
         
+        int mutate1, mutate2;
+        
         for (int i = 0; i < population_size; i++) {
         	
+        	//mutation 1.0 finds a range in the jobs list and reverses the order of jobs
         	if (rand.nextDouble() < mutation_prob) {
         	
         		workflow = population[i].getWorkflow();
@@ -212,38 +215,26 @@ public class GeneticAlgorithm {
         		
         		population[i].setWorkflow(workflow);
         	}
+        	
+        	//mutation 2.0 finds two jobs and flips there place in the jobs list
+        	if (rand.nextDouble() < mutation_prob) {
+        		
+        		mutate1 = rand.nextInt(num_jobs);
+        		mutate2 = rand.nextInt(num_jobs);
+        		
+        		workflow = population[i].getWorkflow();
+        		
+        		temp = workflow[mutate1];
+        		workflow[mutate1] = workflow[mutate2];
+        		workflow[mutate2] = temp;
+        		
+        		population[i].setWorkflow(workflow);
+        		
+        	}
+        	
         }
         
         return population;
     }
     
-    /*
-    // read in the arguments for ga
-	public void ReadArguments(String[] args) {
-        
-            testFile = args[0];
-            populationSize = Integer.parseInt(args[1]);
-            selectionType = args[2];
-            crossoverMethod = args[3];
-            crossoverProb = Float.parseFloat(args[4]);
-            mutationProb = Float.parseFloat(args[5]);
-            numGenerations = Integer.parseInt(args[6]);
-        
-    }
-
-	// print out info when algorithm finished
-	public void algorithmDone(Individual best, int fitness, int iteration) {
-
-        double percentClauses = ((double)fitness/(double)numClauses)*100;
-
-        System.out.println("Problem file: " + testFile);
-        System.out.println("Number of variables: " + numVariables);
-        System.out.println("Number of clauses: " + numClauses);
-        System.out.println("Number of clauses satisfied: " + fitness);
-        System.out.println("Percentage of clauses satisfied: " + percentClauses + "%");
-        System.out.println("Best assignment: " + best.GetAssignments());
-        System.out.println("Found in iteration " + (iteration+1));
-        System.exit(0);
-    }
-    */
 }

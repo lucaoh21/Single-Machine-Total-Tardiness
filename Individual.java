@@ -3,11 +3,10 @@
  * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
  * Date: 11/7/2018
  * 
- * This class defines an ANT object for use in Ant Colony Optimization on the TSP.
- * Each ANT object can hold a tour of cities, represented as an array of integers,
- * a score of that tour of cities, represented as a double, an integer number of
- * cities in the TSP problem instance, and an array of path distances between cities
- * in the problem instance, represented as a 2D array of doubles.
+ * This class defines an Individual object for use in GA on the SMTWTP.
+ * Each Individual object can hold a workflow of jobs, represented as an array of integers,
+ * a score of that workflow of jobs, represented as a double, an integer number of
+ * jobs in the SMTWTP problem instance, and an array of jobs, represented as an array of jobs.
  * 
  */
 
@@ -19,8 +18,8 @@ public class Individual {
 	int num_jobs;
 	JOB[] jobs;
 	
-	/* Purpose: Initialize an ANT object
-	 * Parameters: A given TSP object and an integer number of cities
+	/* Purpose: Initialize an Individual object
+	 * Parameters: Number of jobs, a given SMTWTP object, and the workflow.
 	 * Return: N/A
 	 */
 	public Individual(int num_jobs, SMTWTP smtwtp, int[] workflow) {
@@ -32,7 +31,7 @@ public class Individual {
 		this.workflow_score = Integer.MAX_VALUE;
 	}
 	
-	/* Purpose: Score the ANT's tour
+	/* Purpose: Score the Individual
 	 * Parameters: None
 	 * Return: None
 	 */
