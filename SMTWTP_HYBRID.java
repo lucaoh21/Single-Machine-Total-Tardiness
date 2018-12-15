@@ -20,12 +20,12 @@ public class SMTWTP_HYBRID {
 	public static double stop_percent;
 	//the smttp problem
 	public static String filename;
-	//algorithm to run (options are "aco" "ga" "hyb")
-	public static String algorithm;
+	//algorithm to run (options are "eas" "ga" "both")
+	public static String command;
 	
-	public static String ACO = "aco";
+	public static String ACO = "eas";
 	public static String GA = "ga";
-	public static String HYBRID = "hyb";
+	public static String HYBRID = "both";
 	
 	public static int num_ants = 50;
 	public static int num_iterations = 40;
@@ -38,6 +38,8 @@ public class SMTWTP_HYBRID {
 	public static int max_generations = 500;
 	public static double mutation_prob = 0.6;
 	public static double crossover_prob = 0.9;
+	
+	
 	public static int num_jobs;
 	
 	public static SMTWTP smtwtp;
@@ -53,7 +55,7 @@ public class SMTWTP_HYBRID {
 		//System.out.println("optimal: " + optimal + 
 		//		", stop percent: " + stop_percent + ", filename: " + filename);
 		
-		if(algorithm.equals(ACO)) {
+		if(command.equals(ACO)) {
 			
 			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
 			
@@ -71,7 +73,7 @@ public class SMTWTP_HYBRID {
 			
 		}
 		
-		else if(algorithm.equals(GA)) {
+		else if(command.equals(GA)) {
 			
 			for (int i = 0; i < population_size; i++) {
 				
@@ -89,12 +91,12 @@ public class SMTWTP_HYBRID {
 				
 			}
 			
-			GeneticAlgorithm genetic_algorithm = new GeneticAlgorithm(population_size, mutation_prob, max_generations, crossover_prob);
+			GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
 			genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
 			
 		}
 		
-		else if(algorithm.equals(HYBRID)) {
+		else if(command.equals(HYBRID)) {
 			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
 			
 			for (int i = 0; i < population_size; i++) {
@@ -108,20 +110,23 @@ public class SMTWTP_HYBRID {
 			}
 			System.out.println();
 		
-			GeneticAlgorithm genetic_algorithm = new GeneticAlgorithm(population_size, mutation_prob, max_generations, crossover_prob);
+			GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
 			genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
 			
 		}
-		
 	}
 	
 	public static void readArguments(String[] args) {
 		
 		try {
-				optimal = Integer.parseInt(args[0]);
-				stop_percent = Double.parseDouble(args[1]);
-				filename = args[2];
-				algorithm = args[3];
+
+				num_iterations = Integer.parseInt(args[0]);
+				max_generations = Integer.parseInt(args[1]);
+				optimal = Integer.parseInt(args[2]);
+				stop_percent = Double.parseDouble(args[3]);
+				filename = args[4];
+				command = args[5];
+				
 		} catch(NullPointerException e) {
 			System.out.println("Please verify your inputs and try again");
 			System.exit(0);

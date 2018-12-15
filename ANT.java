@@ -66,7 +66,7 @@ public class ANT {
 	}
 
 	public void setWorkflow(int[] workflow) {
-		this.workflow = workflow;
+		this.workflow = workflow.clone();
 	}
 
 	public int getWorkflow_score() {

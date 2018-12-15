@@ -2,7 +2,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class GeneticAlgorithm {
+public class GA {
 		
     public int population_size;
     public double mutation_prob;
@@ -11,11 +11,11 @@ public class GeneticAlgorithm {
 
     public double crossover_prob;
 
-    public Individual[] population;
+    public INDIVIDUAL[] population;
     public SMTWTP smtwtp;
     
     
-    public GeneticAlgorithm(int population_size, double mutation_prob, int max_generations, double crossover_prob) {
+    public GA(int population_size, double mutation_prob, int max_generations, double crossover_prob) {
     	
     	this.population_size = population_size;
     	this.mutation_prob = mutation_prob;
@@ -27,28 +27,46 @@ public class GeneticAlgorithm {
 		
 		Random rand = new Random();
 		
-		Individual[] parents = new Individual[2];
-		Individual[] children = new Individual[2];
-		Individual[] new_population;
+		INDIVIDUAL[] parents = new INDIVIDUAL[2];
+		INDIVIDUAL[] children = new INDIVIDUAL[2];
+		INDIVIDUAL[] new_population;
 		
 		this.smtwtp = smtwtp;
 		this.num_jobs = smtwtp.getNum_jobs();
 		this.population_size = workflows.length;	
-		population = new Individual[population_size];
+		population = new INDIVIDUAL[population_size];
 		
 		for (int i = 0; i < population_size; i++) {
-			population[i] = new Individual(num_jobs, smtwtp, workflows[i]);
+			population[i] = new INDIVIDUAL(num_jobs, smtwtp, workflows[i]);
 			population[i].scoreWorkflow();
 		}
 		
-		int count, generation, best_score = Integer.MAX_VALUE;
+		int best_score = Integer.MAX_VALUE;
 		int[] best_workflow = new int[num_jobs];
+		
+		for (int i = 0; i < population_size; i++) {
+			if (population[i].getWorkflow_score() < best_score) {
+				best_score = population[i].getWorkflow_score();
+				best_workflow = population[i].getWorkflow().clone();
+			}
+		}
+		
+		System.out.println();
+		System.out.println("Best score found by EAS: " + best_score);
+		System.out.println("Best workflow found by EAS: ");
+		for (int i = 0; i < num_jobs; i++) {
+			System.out.print(best_workflow[i] + " ");
+		}
+		System.out.println();
+		System.out.println();
+		
+		int count, generation;
 		
 		generation = 0;
 		
 		while (generation < max_generations) {
 			
-			new_population = new Individual[population_size];
+			new_population = new INDIVIDUAL[population_size];
 			
 			count = 0;
 					
@@ -83,26 +101,27 @@ public class GeneticAlgorithm {
 				}
 			}
 			
+
 			//System.out.println("Generation " + generation + ", best score is " + best_score);
 			
 			generation++;
 		}
-		System.out.println("After " + max_generations + " generations, the best score is " + best_score);
-		System.out.println("Best workflow:");
+		System.out.println("Best score found by GA: " + best_score);
+		System.out.println("Best workflow found by GA:");
 		for (int i = 0; i < num_jobs; i++) {
 			System.out.print(best_workflow[i] + " ");
 		}
 	}
     
     // return two individuals that have undergone tournament selection
-    public Individual[] tournamentSelection(Individual[] population) {
+    public INDIVIDUAL[] tournamentSelection(INDIVIDUAL[] population) {
 
         Random rand = new Random();
 
         int count = 0;
         int index1, index2;
-        Individual one, two;
-        Individual[] parents = new Individual[2];
+        INDIVIDUAL one, two;
+        INDIVIDUAL[] parents = new INDIVIDUAL[2];
 
         while (count < 2) {
         	
@@ -127,7 +146,7 @@ public class GeneticAlgorithm {
         return parents;
     }
     
-    public Individual[] iPOX(Individual[] parents) {
+    public INDIVIDUAL[] iPOX(INDIVIDUAL[] parents) {
     	
     	Random rand = new Random();
 		Set<Integer> child1_set = new HashSet<Integer>();
@@ -136,7 +155,7 @@ public class GeneticAlgorithm {
     	
     	int cut_point = rand.nextInt(num_jobs);
     	
-    	Individual[] children = new Individual[2];
+    	INDIVIDUAL[] children = new INDIVIDUAL[2];
     	
     	int[] child1_workflow = new int[num_jobs];
     	int[] child2_workflow = new int[num_jobs];
@@ -180,14 +199,14 @@ public class GeneticAlgorithm {
     		index++;
     	}
     	
-    	children[0] = new Individual(num_jobs, smtwtp, child1_workflow);
-    	children[1] = new Individual(num_jobs, smtwtp, child2_workflow);
+    	children[0] = new INDIVIDUAL(num_jobs, smtwtp, child1_workflow);
+    	children[1] = new INDIVIDUAL(num_jobs, smtwtp, child2_workflow);
     	
     	return children;
     }
     
     // potentially mutate each characteristic for each individual in population
-    public Individual[] mutation(Individual[] population){
+    public INDIVIDUAL[] mutation(INDIVIDUAL[] population){
     	
         Random rand = new Random();
         
@@ -236,5 +255,5 @@ public class GeneticAlgorithm {
         
         return population;
     }
-    
+
 }

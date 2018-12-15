@@ -10,7 +10,7 @@
  * 
  */
 
-public class Individual {
+public class INDIVIDUAL {
 	
 	int[] workflow;
 	int workflow_score;
@@ -22,7 +22,7 @@ public class Individual {
 	 * Parameters: Number of jobs, a given SMTWTP object, and the workflow.
 	 * Return: N/A
 	 */
-	public Individual(int num_jobs, SMTWTP smtwtp, int[] workflow) {
+	public INDIVIDUAL(int num_jobs, SMTWTP smtwtp, int[] workflow) {
 		
 		this.num_jobs = num_jobs;
 		this.jobs = smtwtp.getJobs();
@@ -67,7 +67,7 @@ public class Individual {
 	}
 
 	public void setWorkflow(int[] workflow) {
-		this.workflow = workflow;
+		this.workflow = workflow.clone();
 	}
 
 	public int getWorkflow_score() {

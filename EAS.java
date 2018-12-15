@@ -75,7 +75,7 @@ public class EAS {
 	 */
 	public int[] runEAS() {
 		
-		double startTime = System.nanoTime();
+		// double startTime = System.nanoTime();
 		
 		num_jobs = smtwtp.getNum_jobs();
 		jobs = smtwtp.getJobs();
@@ -91,8 +91,8 @@ public class EAS {
 		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
 			
 			//recalculate the numerator of the prob selection rule
-			smtwtp.calculateValue(alpha, beta, 0);
-			//construct the workflows
+			smtwtp.calculateValue(alpha, beta);
+			//construct the tours
 			construct();
 			//checks if there is new best
 			if(hive.findBest()) {
@@ -253,9 +253,8 @@ public class EAS {
 	 */
 	public int[] probSelection() {
 		
-		int time_elapsed = 0;
-		
 		//initialize set with all jobs
+
 		Set<Integer> unperformed_jobs = new HashSet<Integer>();
 		for(int i = 0; i < num_jobs; i++) {
 			unperformed_jobs.add(i);
