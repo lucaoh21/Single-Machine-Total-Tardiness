@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /*
  * Author Luca Osterag-Hill, Tom Lucy, Jake Rourke
@@ -14,10 +12,8 @@ import java.util.Set;
 
 public class SMTWTP_HYBRID {
 	
-	//the optimal score for the problem
-	public static int optimal;
-	//the percentage of optimal on which the algorithm should stop
-	public static double stop_percent;
+	public static int num_iterations;
+	public static int max_generations;
 	//the smttp problem
 	public static String filename;
 	//algorithm to run (options are "eas" "ga" "both")
@@ -28,14 +24,12 @@ public class SMTWTP_HYBRID {
 	public static String HYBRID = "both";
 	
 	public static int num_ants = 50;
-	public static int num_iterations = 40;
 	public static double alpha = 1.0;
 	public static double beta = 6.0;
 	public static double rho = 0.001;
 	public static double elitism_factor = 100;
 		
 	public static int population_size = 100;
-	public static int max_generations = 500;
 	public static double mutation_prob = 0.6;
 	public static double crossover_prob = 0.9;
 	
@@ -57,7 +51,7 @@ public class SMTWTP_HYBRID {
 		
 		if(command.equals(ACO)) {
 			
-			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
+			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, smtwtp);
 			
 			for (int i = 0; i < population_size; i++) {
 				best_eas_solutions[i] = eas.runEAS();
@@ -97,7 +91,7 @@ public class SMTWTP_HYBRID {
 		}
 		
 		else if(command.equals(HYBRID)) {
-			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, optimal, stop_percent, smtwtp);
+			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, smtwtp);
 			
 			for (int i = 0; i < population_size; i++) {
 				best_eas_solutions[i] = eas.runEAS();
@@ -119,13 +113,11 @@ public class SMTWTP_HYBRID {
 	public static void readArguments(String[] args) {
 		
 		try {
-
+				
 				num_iterations = Integer.parseInt(args[0]);
 				max_generations = Integer.parseInt(args[1]);
-				optimal = Integer.parseInt(args[2]);
-				stop_percent = Double.parseDouble(args[3]);
-				filename = args[4];
-				command = args[5];
+				filename = args[2];
+				command = args[3];
 				
 		} catch(NullPointerException e) {
 			System.out.println("Please verify your inputs and try again");

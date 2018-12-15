@@ -30,8 +30,6 @@ public class EAS {
 	double beta;
 	double rho;
 	double elitism_factor;
-	int optimal;
-	double stop_percent;
 	
 	double best_all_time;
 	int[] best_workflow;
@@ -48,7 +46,7 @@ public class EAS {
 
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
-			double elitism_factor, int optimal, double stop_percent, SMTWTP smtwtp) {
+			double elitism_factor, SMTWTP smtwtp) {
 		
 		this.num_ants = num_ants;
 		this.max_iterations = max_iterations;
@@ -56,8 +54,6 @@ public class EAS {
 		this.beta = beta;
 		this.rho = rho;
 		this.elitism_factor = elitism_factor;
-		this.optimal = optimal;
-		this.stop_percent = stop_percent;
 		this.smtwtp = smtwtp;
 		this.transitions_in_best_workflow = new HashSet<Integer>();
 		this.best_all_time = Double.MAX_VALUE;
@@ -67,8 +63,7 @@ public class EAS {
 	/*
 	 * Purpose: The main algorithm of the EAS algorithm. It iteratively builds workflows, finds
 	 * 	the best workflow, and updates pheromone levels. The algorithm stops iterating when 
-	 * 	a specified number of iterations is met or if the algorithm has found a 
-	 * 	solution within the specified optimal percentage.
+	 * 	a specified number of iterations is met.
 	 * Parameters: none
 	 * Return: none, prints the best so far in each iteration
 	 * 
@@ -85,10 +80,9 @@ public class EAS {
 		hive = new HIVE(num_ants, smtwtp.getNum_jobs(), smtwtp);
 		
 		int num_iteration = 0;
-		double bsf_percent = Double.MAX_VALUE;
 		
-		//iterates until max iterations or specified percentage is met
-		while(num_iteration < max_iterations && bsf_percent > stop_percent) {
+		//iterates until max iterations
+		while(num_iteration < max_iterations) {
 			
 			//recalculate the numerator of the prob selection rule
 			smtwtp.calculateValue(alpha, beta);
@@ -104,7 +98,6 @@ public class EAS {
 			evaporatePheromone();
 			depositPheromone();
 			
-			bsf_percent = (hive.getBest_score_so_far() / (double) optimal) - 1.0;
 			num_iteration++;
 		}
 		
