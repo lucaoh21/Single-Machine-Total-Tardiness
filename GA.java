@@ -51,15 +51,6 @@ public class GA {
 			}
 		}
 		
-		System.out.println();
-		System.out.println("Best score found by EAS: " + best_score);
-		System.out.println("Best workflow found by EAS: ");
-		for (int i = 0; i < num_jobs; i++) {
-			System.out.print(best_workflow[i] + " ");
-		}
-		System.out.println();
-		System.out.println();
-		
 		int count, generation;
 		
 		generation = 0;
@@ -106,11 +97,7 @@ public class GA {
 			
 			generation++;
 		}
-		System.out.println("Best score found by GA: " + best_score);
-		System.out.println("Best workflow found by GA:");
-		for (int i = 0; i < num_jobs; i++) {
-			System.out.print(best_workflow[i] + " ");
-		}
+		System.out.println(best_score);
 	}
     
     // return two individuals that have undergone tournament selection

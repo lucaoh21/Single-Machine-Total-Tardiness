@@ -48,7 +48,7 @@ public class EAS {
 
 	
 	public EAS(int num_ants, int max_iterations, double alpha, double beta, double rho,
-			double elitism_factor, int optimal, double stop_percent, SMTWTP smtwtp) {
+			double elitism_factor, SMTWTP smtwtp) {
 		
 		this.num_ants = num_ants;
 		this.max_iterations = max_iterations;
@@ -56,8 +56,6 @@ public class EAS {
 		this.beta = beta;
 		this.rho = rho;
 		this.elitism_factor = elitism_factor;
-		this.optimal = optimal;
-		this.stop_percent = stop_percent;
 		this.smtwtp = smtwtp;
 		this.transitions_in_best_workflow = new HashSet<Integer>();
 		this.best_all_time = Double.MAX_VALUE;
