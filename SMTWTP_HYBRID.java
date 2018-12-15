@@ -12,6 +12,8 @@ import java.util.Collections;
 
 public class SMTWTP_HYBRID {
 	
+	public static int num_iterations;
+	public static int max_generations;
 	//the smttp problem
 	public static String filename;
 	//algorithm to run (options are "eas" "ga" "both")
@@ -22,14 +24,12 @@ public class SMTWTP_HYBRID {
 	public static String HYBRID = "both";
 	
 	public static int num_ants = 50;
-	public static int num_iterations;
 	public static double alpha = 1.0;
 	public static double beta = 6.0;
 	public static double rho = 0.001;
 	public static double elitism_factor = 100;
 		
 	public static int population_size = 100;
-	public static int max_generations;
 	public static double mutation_prob = 0.6;
 	public static double crossover_prob = 0.9;
 	
@@ -102,6 +102,7 @@ public class SMTWTP_HYBRID {
 	public static void readArguments(String[] args) {
 		
 		try {
+
 				num_iterations = Integer.parseInt(args[0]);
 				max_generations = Integer.parseInt(args[1]);
 				filename = args[2];
