@@ -132,7 +132,11 @@ public class SMTWTP {
 		for(int i = 0; i < num_jobs; i++) {
 			for(int j = 0; j < i; j++) {
 				pheromone = smtwtp_pheromone[i][j];
-				heuristic = 1 / (double) due_dates[i];
+				if (due_dates[i] == 0) {
+					heuristic = 1;
+				} else {
+					heuristic = 1 / (double) due_dates[i];
+				}
 				smtwtp_value[i][j] = Math.pow(pheromone, alpha) * Math.pow(heuristic, beta);
 			}
 		}
