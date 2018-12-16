@@ -1,3 +1,16 @@
+/*
+ * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
+ * Date: 12/15/2018
+ * 
+ * This class defines a SMTWTP object. The object contains all of the necessary 
+ * information for a SMTWTP problem including the number of jobs, arrays for the
+ * processing times, due dates, and weights of the jobs, and 2d arrays for the 
+ * pheromone matrix and numerator values for EAS stochastic equation.
+ * 
+ * This file parses a given SMTWTP problem.
+ * 
+ */
+
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +47,7 @@ public class SMTWTP {
 				
 				line = sc.nextLine().trim().split("\\s+");
 				
+				//first section is processing times
 				if (counter == PROCESSING_TIME) {
 					
 					this.num_jobs = line.length;
@@ -46,16 +60,16 @@ public class SMTWTP {
 					}
 				}
 				
+				//second section is due dates
 				else if (counter == DUE_DATE) {
 					
 					for (int i = 0; i < num_jobs; i++) {
 						int temp = Integer.parseInt(line[i]);
 						due_dates[i] = temp;
-
-						//due_dates[i] = Integer.parseInt(line[i]);
 					}
 				}
 				
+				//third section is weights
 				else if (counter == WEIGHT) {
 					
 					for (int i = 0; i < num_jobs; i++) {
@@ -87,9 +101,6 @@ public class SMTWTP {
 	/* Purpose: Initialize the pheromone array to base tau
 	 * Parameters: A double value of the base pheromone
 	 * Return: None
-	 * 
-	 * Note: Only initalize the top right half of the 2D
-	 * array as the problems are symmetric
 	 */
 	public void initializePheromone(double base_tau) {
 		
@@ -101,8 +112,8 @@ public class SMTWTP {
 	}
 	
 	/* Purpose: Increase the pheromone level on a certain path
-	 * Parameters: An integer value of city 1, an integer value
-	 * of city 2, and a double value of the desired pheromone increase
+	 * Parameters: An integer value of job 1, an integer value
+	 * of job 2, and a double value of the desired pheromone increase
 	 * Return: None
 	 */
 	public void increasePheromone(int i, int j, double pheromone) {
@@ -111,8 +122,8 @@ public class SMTWTP {
 	}
 	
 	/* Purpose: Evaporate the pheromone level on a certain path
-	 * Parameters: An integer value of city 1, an integer value
-	 * of city 2, and a double value of the evaporation factor
+	 * Parameters: An integer value of job 1, an integer value
+	 * of job 2, and a double value of the evaporation factor
 	 * Return: None
 	 */
 	public void evaporatePheromone(int i, int j, double rho) {

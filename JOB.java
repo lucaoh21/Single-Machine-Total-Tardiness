@@ -1,3 +1,11 @@
+/*
+ * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
+ * Date: 12/16/2018
+ * 
+ * This class defines a JOB object. The object contains a job number, processing
+ * time, due date, and weight for that job. 
+ * 
+ */
 
 public class JOB {
 	
@@ -17,6 +25,7 @@ public class JOB {
 		return job_number;
 	}
 
+	//sets the job number of the job
 	public void setJob_number(int job_number) {
 		this.job_number = job_number;
 	}
