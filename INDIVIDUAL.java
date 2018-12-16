@@ -1,7 +1,7 @@
 
 /*
  * Authors: Luca Ostertag-Hill, Tom Lucy, Jake Rourke
- * Date: 11/7/2018
+ * Date: 12/15/2018
  * 
  * This class defines an Individual object for use in GA on the SMTWTP.
  * Each Individual object can hold a workflow of jobs, represented as an array of integers,

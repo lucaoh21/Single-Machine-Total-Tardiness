@@ -1,6 +1,6 @@
 /*
  * Author Luca Ostertag-Hill, Tom Lucy, Jake Rourke
- * Date 11/7/2018
+ * Date 12/15/2018
  * 
  * This class defines the Elitist Ant System algorithm. Called by SMTWTP_HYBRID and given
  * the user inputed values, it runs the EAS algorithm for the specified number of
@@ -100,24 +100,6 @@ public class EAS {
 			
 			num_iteration++;
 		}
-		
-		/*
-		//print finish message
-		if(bsf_percent <= stop_percent) {
-			System.out.println("The algorithm found a tour of " + hive.getBest_score_so_far() + 
-					" with a percent over the optimal of " + bsf_percent + 
-					", which is within the specified percentage of " + stop_percent);
-		} else {
-			System.out.println("Max iterations reached.");
-		}
-		
-		double endTime = System.nanoTime();
-		double duration = (endTime - startTime) / NANO_TO_SEC;
-		
-		System.out.println("Time duration is: " + duration);
-		*/
-		
-		//System.out.println(hive.getBest_score_so_far());
 		
 		if(hive.getBest_score_so_far() < best_all_time) {
 			best_all_time = hive.getBest_score_so_far();

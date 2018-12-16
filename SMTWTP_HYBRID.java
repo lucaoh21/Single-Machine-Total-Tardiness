@@ -3,10 +3,10 @@ import java.util.Collections;
 
 /*
  * Author Luca Osterag-Hill, Tom Lucy, Jake Rourke
- * Date 11/6/2018
+ * Date 12/15/2018
  * 
- * This class is the main class for the ACO project. Given the user inputs,
- * the class calls either EAS or ACS, which do the iterative building.
+ * This class is the main class for the HYBRID project. Given the user inputs,
+ * the class calls either GA, EAS, or the hybrid, which do the iterative building.
  * 
  */
 
@@ -14,7 +14,7 @@ public class SMTWTP_HYBRID {
 	
 	public static int num_iterations;
 	public static int max_generations;
-	//the smttp problem
+	//the problem
 	public static String filename;
 	//algorithm to run (options are "eas" "ga" "both")
 	public static String command;
@@ -46,9 +46,7 @@ public class SMTWTP_HYBRID {
 		num_jobs = smtwtp.getNum_jobs();
 		int[][] best_eas_solutions = new int[population_size][num_jobs];
 		
-		//System.out.println("optimal: " + optimal + 
-		//		", stop percent: " + stop_percent + ", filename: " + filename);
-		
+		//if just the ACO algorithm is selected
 		if(command.equals(ACO)) {
 			
 			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, smtwtp);
@@ -61,8 +59,10 @@ public class SMTWTP_HYBRID {
 			
 		}
 		
+		//if just the GA algorithm is selected
 		else if(command.equals(GA)) {
 			
+			//create a randomized workflow
 			for (int i = 0; i < population_size; i++) {
 				
 				ArrayList<Integer> a = new ArrayList<>(11);
@@ -84,6 +84,7 @@ public class SMTWTP_HYBRID {
 			
 		}
 		
+		//if the hybrid algorithm is selected
 		else if(command.equals(HYBRID)) {
 			EAS eas = new EAS(num_ants, num_iterations, alpha, beta, rho, elitism_factor, smtwtp);
 			
@@ -93,16 +94,17 @@ public class SMTWTP_HYBRID {
 			
 			System.out.print(eas.getBest_all_time() + "	");
 		
+			//use workflow of the best solutions found in EAS
 			GA genetic_algorithm = new GA(population_size, mutation_prob, max_generations, crossover_prob);
 			genetic_algorithm.RunGA(best_eas_solutions, smtwtp);
 			
 		}
 	}
 	
+	
 	public static void readArguments(String[] args) {
 		
 		try {
-
 				num_iterations = Integer.parseInt(args[0]);
 				max_generations = Integer.parseInt(args[1]);
 				filename = args[2];
